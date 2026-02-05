@@ -345,7 +345,7 @@ const handleEdit = (supir: Supir) => {
           </Dialog>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => { setEditingSupir(null); setFormData({ nama: '', namaPT: '', username '', isActive: true }); }}>
+              <Button onClick={() => { setEditingSupir(null); setFormData({ nama: '', namaPT: '', username: '', isActive: true }); }}>
                 <Plus className="mr-2 h-4 w-4" />
                 Tambah Supir
               </Button>
