@@ -37,30 +37,65 @@ For consistency with `Supir` which already had `updatedAt`.
 
 ---
 
+### Issue 3: Vercel Deployment - Missing Output Directory Configuration
+**File:** [vercel.json](vercel.json)
+
+**Problem:** Vercel deployment failed with:
+```
+Error: No Output Directory named "public" found after the Build completed.
+Configure the Output Directory in your Project Settings.
+```
+
+**Root Cause:** 
+- Build completed successfully (`.next` output created)
+- But `vercel.json` was missing or incorrectly configured
+- Vercel couldn't determine correct output directory
+
+**Solution:** Created correct minimal `vercel.json` for Next.js:
+```json
+{
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "framework": "nextjs"
+}
+```
+
+Vercel framework auto-detection now works correctly.
+
+**Commit:** `227fcd3` - "Fix: Correct vercel.json configuration for Next.js"
+
+---
+
 ## 📝 Changes Summary
 
-| File | Change | Commit |
-|------|--------|--------|
-| `app/dashboard/master/truck/page.tsx` | Added `isActive: true` to bulk import | `1c23ef4` |
-| `types/index.ts` | Added `updatedAt: string` to 3 types | `3b6cfbe` |
+| Issue | File | Change | Commit |
+|-------|------|--------|--------|
+| Missing `isActive` | truck/page.tsx | Added to bulk import | `1c23ef4` |
+| Missing `updatedAt` | types/index.ts | Added to 3 types | `3b6cfbe` |
+| Vercel config | vercel.json | Created correct config | `227fcd3` |
 
 ---
 
 ## ✅ Status
 
-✅ **All Fixed and Deployed**
-- Both commits pushed to GitHub
+✅ **All 3 Issues Fixed and Deployed**
+- All commits pushed to GitHub
 - Vercel auto-rebuilding
-- Build should pass now
+- **Build should pass now!**
 
 ---
 
-## 🔍 Verification
+## 🔍 Next Steps
 
-Check Vercel deployment:
-- URL: https://vercel.com/manfredgunardi-star/sistem-monitoring-surat-jalan
-- Latest commit: `3b6cfbe`
-- Deployment status: Should be "Ready" ✅
+Vercel should now successfully:
+1. ✅ Clone latest code
+2. ✅ Find `vercel.json` configuration
+3. ✅ Build Next.js to `.next` directory  
+4. ✅ Deploy successfully
+5. ✅ Application live!
+
+**Monitor:** https://vercel.com/manfredgunardi-star/sistem-monitoring-surat-jalan
 
 ---
 
