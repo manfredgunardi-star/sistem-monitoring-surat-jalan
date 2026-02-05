@@ -64,7 +64,7 @@ export default function TruckPage() {
       
       const dataToImport = lines.slice(startIndex).map(line => {
         const nomorPolisi = line.trim();
-        return { nomorPolisi };
+        return { nomorPolisi, isActive: true };
       }).filter(item => item.nomorPolisi);
 
       if (dataToImport.length === 0) {
