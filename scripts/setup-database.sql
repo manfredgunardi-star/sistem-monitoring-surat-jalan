@@ -140,21 +140,27 @@ $$ LANGUAGE plpgsql;
 -- TRIGGERS untuk auto-update timestamps
 -- =====================================================
 
+DROP TRIGGER IF EXISTS update_users_updated_at ON public.users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON public.users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_supir_updated_at ON public.supir;
 CREATE TRIGGER update_supir_updated_at BEFORE UPDATE ON public.supir
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_truck_updated_at ON public.truck;
 CREATE TRIGGER update_truck_updated_at BEFORE UPDATE ON public.truck
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_material_updated_at ON public.material;
 CREATE TRIGGER update_material_updated_at BEFORE UPDATE ON public.material
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_rute_updated_at ON public.rute;
 CREATE TRIGGER update_rute_updated_at BEFORE UPDATE ON public.rute
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_surat_jalan_updated_at ON public.surat_jalan;
 CREATE TRIGGER update_surat_jalan_updated_at BEFORE UPDATE ON public.surat_jalan
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -183,18 +189,23 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Attach audit triggers to all tables
+DROP TRIGGER IF EXISTS audit_supir ON public.supir;
 CREATE TRIGGER audit_supir AFTER INSERT OR UPDATE OR DELETE ON public.supir
   FOR EACH ROW EXECUTE FUNCTION audit_log_trigger_func();
 
+DROP TRIGGER IF EXISTS audit_truck ON public.truck;
 CREATE TRIGGER audit_truck AFTER INSERT OR UPDATE OR DELETE ON public.truck
   FOR EACH ROW EXECUTE FUNCTION audit_log_trigger_func();
 
+DROP TRIGGER IF EXISTS audit_material ON public.material;
 CREATE TRIGGER audit_material AFTER INSERT OR UPDATE OR DELETE ON public.material
   FOR EACH ROW EXECUTE FUNCTION audit_log_trigger_func();
 
+DROP TRIGGER IF EXISTS audit_rute ON public.rute;
 CREATE TRIGGER audit_rute AFTER INSERT OR UPDATE OR DELETE ON public.rute
   FOR EACH ROW EXECUTE FUNCTION audit_log_trigger_func();
 
+DROP TRIGGER IF EXISTS audit_surat_jalan ON public.surat_jalan;
 CREATE TRIGGER audit_surat_jalan AFTER INSERT OR UPDATE OR DELETE ON public.surat_jalan
   FOR EACH ROW EXECUTE FUNCTION audit_log_trigger_func();
 
@@ -212,69 +223,101 @@ ALTER TABLE public.surat_jalan ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Users table policies
+DROP POLICY IF EXISTS "Users can view all users" ON public.users;
 CREATE POLICY "Users can view all users" ON public.users
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Only admins can insert users" ON public.users;
 CREATE POLICY "Only admins can insert users" ON public.users
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "Only admins can update users" ON public.users;
 CREATE POLICY "Only admins can update users" ON public.users
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
   );
 
 -- Master data policies (admin can do everything, others can only read)
+DROP POLICY IF EXISTS "Anyone can view supir" ON public.supir;
 CREATE POLICY "Anyone can view supir" ON public.supir
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Admin can insert supir" ON public.supir;
 CREATE POLICY "Admin can insert supir" ON public.supir
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "Admin can update supir" ON public.supir;
 CREATE POLICY "Admin can update supir" ON public.supir
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "Admin can delete supir" ON public.supir;
 CREATE POLICY "Admin can delete supir" ON public.supir
   FOR DELETE USING (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
   );
 
 -- Repeat similar policies for truck, material, rute
+DROP POLICY IF EXISTS "Anyone can view truck" ON public.truck;
 CREATE POLICY "Anyone can view truck" ON public.truck FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin can insert truck" ON public.truck;
 CREATE POLICY "Admin can insert truck" ON public.truck FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can update truck" ON public.truck;
 CREATE POLICY "Admin can update truck" ON public.truck FOR UPDATE USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can delete truck" ON public.truck;
 CREATE POLICY "Admin can delete truck" ON public.truck FOR DELETE USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
 
+DROP POLICY IF EXISTS "Anyone can view material" ON public.material;
 CREATE POLICY "Anyone can view material" ON public.material FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin can insert material" ON public.material;
 CREATE POLICY "Admin can insert material" ON public.material FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can update material" ON public.material;
 CREATE POLICY "Admin can update material" ON public.material FOR UPDATE USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can delete material" ON public.material;
 CREATE POLICY "Admin can delete material" ON public.material FOR DELETE USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
 
+DROP POLICY IF EXISTS "Anyone can view rute" ON public.rute;
 CREATE POLICY "Anyone can view rute" ON public.rute FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin can insert rute" ON public.rute;
 CREATE POLICY "Admin can insert rute" ON public.rute FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can update rute" ON public.rute;
 CREATE POLICY "Admin can update rute" ON public.rute FOR UPDATE USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can delete rute" ON public.rute;
 CREATE POLICY "Admin can delete rute" ON public.rute FOR DELETE USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
 
 -- Surat Jalan policies (input and admin can create/update)
+DROP POLICY IF EXISTS "Anyone can view surat_jalan" ON public.surat_jalan;
 CREATE POLICY "Anyone can view surat_jalan" ON public.surat_jalan
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Input and Admin can insert surat_jalan" ON public.surat_jalan;
 CREATE POLICY "Input and Admin can insert surat_jalan" ON public.surat_jalan
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('admin', 'input'))
   );
 
+DROP POLICY IF EXISTS "Input and Admin can update surat_jalan" ON public.surat_jalan;
 CREATE POLICY "Input and Admin can update surat_jalan" ON public.surat_jalan
   FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('admin', 'input'))
   );
 
 -- Audit log policies (read-only for everyone)
+DROP POLICY IF EXISTS "Anyone can view audit_log" ON public.audit_log;
 CREATE POLICY "Anyone can view audit_log" ON public.audit_log
   FOR SELECT USING (true);
 
