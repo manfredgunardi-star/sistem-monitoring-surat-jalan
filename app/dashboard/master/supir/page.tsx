@@ -32,8 +32,14 @@ export default function SupirPage() {
   const [supirs, setSupirs] = useState<Supir[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSupir, setEditingSupir] = useState<Supir | null>(null);
-  const [formData, setFormData] = useState({ nama: '', namaPT: '', isActive: true });
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+const [formData, setFormData] = useState({
+  nama: '',
+  namaPT: '',
+  username: '',
+  isActive: true
+});
+
   const [importData, setImportData] = useState('');
   const [previewLines, setPreviewLines] = useState<string[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -74,80 +80,147 @@ export default function SupirPage() {
     reader.readAsText(file);
   };
 
-  const processImport = async () => {
-    try {
-      const lines = importData.trim().split('\n').filter(line => line.trim());
-      
-      const firstLine = lines[0] || '';
-      const delimiter = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : ',';
-      
-      const startIndex = lines[0]?.toLowerCase().includes('nama') ? 1 : 0;
-      
-      const dataToImport = lines.slice(startIndex).map(line => {
-        const parts = line.split(delimiter);
-        const nama = parts[0]?.trim() || '';
-        const namaPT = parts[1]?.trim() || '';
-        return { nama, namaPT };
-      }).filter(item => item.nama && item.namaPT);
+const processImport = async () => {
+  try {
+    const lines = importData
+      .replace(/\r/g, "") // penting untuk file Windows (CRLF)
+      .trim()
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
 
-      if (dataToImport.length === 0) {
-        toast({ 
-          title: 'Error', 
-          description: 'Format data tidak valid. Pastikan format: Nama Supir; Nama PT atau Nama Supir, Nama PT',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      await supirService.bulkCreate(dataToImport);
-      await loadData();
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      setIsImportDialogOpen(false);
-      setImportData('');
-      setPreviewLines([]);
-      toast({ 
-        title: 'Berhasil', 
-        description: `${dataToImport.length} data supir berhasil diimport` 
+    if (lines.length === 0) {
+      toast({
+        title: "Error",
+        description: "File kosong atau format tidak terbaca.",
+        variant: "destructive",
       });
-    } catch (error) {
-      toast({ 
-        title: 'Error', 
-        description: 'Gagal mengimport data',
-        variant: 'destructive'
-      });
+      return;
     }
-  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      if (editingSupir) {
-        await supirService.update(editingSupir.id, formData);
-        toast({ title: 'Berhasil', description: 'Data supir berhasil diperbarui' });
-      } else {
-        await supirService.create(formData);
-        toast({ title: 'Berhasil', description: 'Data supir berhasil ditambahkan' });
-      }
-      
-      await loadData();
-      setIsDialogOpen(false);
-      setFormData({ nama: '', namaPT: '', isActive: true });
-      setEditingSupir(null);
-    } catch (error) {
-      toast({ 
-        title: 'Error', 
-        description: 'Gagal menyimpan data supir',
-        variant: 'destructive'
+    const firstLine = lines[0] || "";
+    const delimiter =
+      firstLine.split(";").length > firstLine.split(",").length ? ";" : ",";
+
+    // header detection: jika baris pertama mengandung kata "nama" dan "pt" anggap header
+    const header = firstLine.toLowerCase();
+    const startIndex =
+      header.includes("nama") && header.includes("pt") ? 1 : 0;
+
+    const slugify = (s: string) =>
+      s
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, ".")
+        .replace(/[^a-z0-9.]/g, "");
+
+    const dataToImport = lines
+      .slice(startIndex)
+      .map((line, idx) => {
+        const parts = line.split(delimiter).map((p) => p.trim());
+
+        const nama = parts[0] || "";
+        const namaPT = parts[1] || "";
+
+        // kalau file punya kolom ke-3 (username), pakai itu; kalau tidak, generate dari nama
+        const usernameFromFile = parts[2] || "";
+        const base = usernameFromFile || slugify(nama);
+
+        // buat unik supaya tidak tabrakan saat import banyak baris
+        const username = base ? `${base}.${idx + 1}` : "";
+
+        return {
+          nama,
+          namaPT,
+          username,
+          isActive: true,
+        };
+      })
+      .filter((x) => x.nama && x.namaPT && x.username);
+
+    if (dataToImport.length === 0) {
+      toast({
+        title: "Error",
+        description:
+          "Format data tidak valid. Minimal: Nama Supir;Nama PT (opsional kolom ke-3: Username).",
+        variant: "destructive",
       });
+      return;
     }
-  };
 
-  const handleEdit = (supir: Supir) => {
-    setEditingSupir(supir);
-    setFormData({ nama: supir.nama, namaPT: supir.namaPT, isActive: supir.isActive });
-    setIsDialogOpen(true);
-  };
+    await supirService.bulkCreate(dataToImport);
+    await loadData();
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setIsImportDialogOpen(false);
+    setImportData("");
+    setPreviewLines([]);
+
+    toast({
+      title: "Berhasil",
+      description: `${dataToImport.length} data supir berhasil diimport`,
+    });
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Error",
+      description: "Gagal mengimport data",
+      variant: "destructive",
+    });
+  }
+};
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ".")
+    .replace(/[^a-z0-9.]/g, "");
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const usernameFinal =
+      formData.username?.trim() || slugify(formData.nama);
+
+    const payload = {
+      ...formData,
+      username: usernameFinal,
+    };
+
+    if (editingSupir) {
+      await supirService.update(editingSupir.id, payload);
+      toast({ title: 'Berhasil', description: 'Data supir berhasil diperbarui' });
+    } else {
+      await supirService.create(payload);
+      toast({ title: 'Berhasil', description: 'Data supir berhasil ditambahkan' });
+    }
+
+    await loadData();
+    setIsDialogOpen(false);
+    setFormData({ nama: '', namaPT: '', username: '', isActive: true });
+    setEditingSupir(null);
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: 'Error',
+      description: 'Gagal menyimpan data supir',
+      variant: 'destructive'
+    });
+  }
+};
+
+const handleEdit = (supir: Supir) => {
+  setEditingSupir(supir);
+  setFormData({
+    nama: supir.nama,
+    namaPT: supir.namaPT,
+    username: (supir as any).username || "", // kalau type Supir belum update
+    isActive: supir.isActive
+  });
+  setIsDialogOpen(true);
+};
   
   const handleToggleStatus = async (supir: Supir) => {
     try {
