@@ -80,6 +80,8 @@ const [formData, setFormData] = useState({
     reader.readAsText(file);
   };
 
+type SupirCreate = Omit<Supir, "id" | "createdAt" | "updatedAt">;
+
 const processImport = async () => {
   try {
     const lines = importData
@@ -114,29 +116,30 @@ const processImport = async () => {
         .replace(/\s+/g, ".")
         .replace(/[^a-z0-9.]/g, "");
 
-    const dataToImport = lines
-      .slice(startIndex)
-      .map((line, idx) => {
-        const parts = line.split(delimiter).map((p) => p.trim());
+const dataToImport: SupirCreate[] = lines
+  .slice(startIndex)
+  .map((line, idx): SupirCreate => {
+    const parts = line.split(delimiter).map(p => p.trim());
 
-        const nama = parts[0] || "";
-        const namaPT = parts[1] || "";
+    const nama = parts[0] || "";
+    const namaPT = parts[1] || "";
 
-        // kalau file punya kolom ke-3 (username), pakai itu; kalau tidak, generate dari nama
-        const usernameFromFile = parts[2] || "";
-        const base = usernameFromFile || slugify(nama);
+    const slugify = (s: string) =>
+      s.toLowerCase().trim().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "");
 
-        // buat unik supaya tidak tabrakan saat import banyak baris
-        const username = base ? `${base}.${idx + 1}` : "";
+    const usernameFromFile = parts[2] || "";
+    const base = usernameFromFile || slugify(nama);
+    const username = base ? `${base}.${idx + 1}` : "";
 
-        return {
-          nama,
-          namaPT,
-          username,
-          isActive: true,
-        };
-      })
-      .filter((x) => x.nama && x.namaPT && x.username);
+    return {
+      nama,
+      namaPT,
+      username,
+      isActive: true,
+    };
+  })
+  .filter(x => x.nama && x.namaPT && x.username);
+
 
     if (dataToImport.length === 0) {
       toast({
