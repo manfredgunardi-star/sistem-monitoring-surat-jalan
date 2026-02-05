@@ -160,46 +160,50 @@ export default function DashboardLayout({
       </header>
 
       {/* Overlay for sidebar */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-20 top-14"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      <div
+        className={cn(
+          'fixed inset-0 bg-black/50 z-20 top-14 transition-opacity duration-200',
+          isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={() => setIsSidebarOpen(false)}
+      />
 
       {/* Sidebar - Overlay only */}
-      {isSidebarOpen && (
-        <aside className="fixed left-0 top-14 w-64 h-[calc(100vh-3.5rem)] bg-white border-r border-slate-200 overflow-y-auto z-30">
-          <div className="py-4 px-4">
-            <nav className="space-y-1">
-              {filteredMenuItems.map((item, index) => {
-                if (item.isGroup) {
-                  return (
-                    <div key={index} className="pt-4 pb-2">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-                        {item.label}
-                      </h3>
-                    </div>
-                  );
-                }
-                
-                const Icon = item.icon!;
+      <aside 
+        className={cn(
+          'fixed left-0 top-14 w-64 h-[calc(100vh-3.5rem)] bg-white border-r border-slate-200 overflow-y-auto z-30 transition-transform duration-300 ease-in-out',
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="py-4 px-4">
+          <nav className="space-y-1">
+            {filteredMenuItems.map((item, index) => {
+              if (item.isGroup) {
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href!}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-100 text-slate-700 transition-colors text-sm font-medium"
-                    onClick={() => setIsSidebarOpen(false)}
-                  >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                  </Link>
+                  <div key={index} className="pt-4 pb-2">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
+                      {item.label}
+                    </h3>
+                  </div>
                 );
-              })}
-            </nav>
-          </div>
-        </aside>
-      )}
+              }
+              
+              const Icon = item.icon!;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href!}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-100 text-slate-700 transition-colors text-sm font-medium"
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </aside>
 
       {/* Main Content - Full Width */}
       <main className="flex-1 overflow-y-auto w-full bg-green-50">
