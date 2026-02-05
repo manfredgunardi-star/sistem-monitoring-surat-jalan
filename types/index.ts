@@ -27,6 +27,7 @@ export interface Truck {
   nomorPolisi: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Material {
@@ -34,6 +35,7 @@ export interface Material {
   namaMaterial: string;
   satuan: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Rute {
@@ -41,6 +43,7 @@ export interface Rute {
   namaRute: string;
   uangJalan: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 // Surat Jalan Types
