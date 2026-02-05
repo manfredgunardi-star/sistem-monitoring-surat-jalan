@@ -128,7 +128,7 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 w-full">
-        <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto w-full">
+        <div className="flex items-center justify-between px-4 py-3 max-w-5xl mx-auto w-full">
           <div className="flex items-center gap-3 flex-1">
             <Button
               variant="ghost"
@@ -208,7 +208,7 @@ export default function DashboardLayout({
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto w-full">
-          <div className="p-4 lg:p-8 max-w-7xl mx-auto w-full">
+          <div className="p-4 lg:p-6 max-w-5xl mx-auto w-full">
             {children}
           </div>
         </main>
