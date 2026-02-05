@@ -128,7 +128,7 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 w-full">
-        <div className="flex items-center justify-between px-4 py-3 max-w-5xl mx-auto w-full">
+        <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3 flex-1">
             <Button
               variant="ghost"
@@ -160,12 +160,20 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      <div className="flex flex-1 w-full overflow-hidden">
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden top-14"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex flex-1 w-full overflow-hidden relative">
         {/* Sidebar */}
         <aside
           className={cn(
-            'fixed lg:relative left-0 top-0 h-screen lg:h-auto z-30 w-64 bg-white border-r border-slate-200 transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-y-auto',
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            'fixed lg:relative left-0 top-14 h-screen lg:h-auto w-64 bg-white border-r border-slate-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:top-0 overflow-y-auto z-30',
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
           <div className="py-4 px-4">
@@ -198,17 +206,9 @@ export default function DashboardLayout({
           </div>
         </aside>
 
-        {/* Overlay for mobile */}
-        {isSidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto w-full">
-          <div className="p-4 lg:p-6 max-w-5xl mx-auto w-full">
+          <div className="p-4 lg:p-6 w-full">
             {children}
           </div>
         </main>
