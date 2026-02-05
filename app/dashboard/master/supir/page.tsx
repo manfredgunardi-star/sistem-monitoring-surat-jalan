@@ -109,27 +109,28 @@ const processImport = async () => {
     const startIndex =
       header.includes("nama") && header.includes("pt") ? 1 : 0;
 
-    const slugify = (s: string) =>
-      s
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, ".")
-        .replace(/[^a-z0-9.]/g, "");
+type SupirCreate = Omit<Supir, "id" | "createdAt" | "updatedAt">;
+
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ".")
+    .replace(/[^a-z0-9.]/g, "");
 
 const dataToImport: SupirCreate[] = lines
   .slice(startIndex)
-  .map((line, idx): SupirCreate => {
-    const parts = line.split(delimiter).map(p => p.trim());
+  .map((line, idx) => {
+    const parts = line.split(delimiter);
 
-    const nama = parts[0] || "";
-    const namaPT = parts[1] || "";
+    const nama = parts[0]?.trim() || "";
+    const namaPT = parts[1]?.trim() || "";
 
-    const slugify = (s: string) =>
-      s.toLowerCase().trim().replace(/\s+/g, ".").replace(/[^a-z0-9.]/g, "");
+    // Kalau file tidak punya kolom username, auto dari nama
+    const usernameBase = parts[2]?.trim() || slugify(nama);
 
-    const usernameFromFile = parts[2] || "";
-    const base = usernameFromFile || slugify(nama);
-    const username = base ? `${base}.${idx + 1}` : "";
+    // Anti duplikat minimal (opsional tapi aman)
+    const username = usernameBase ? `${usernameBase}.${idx + 1}` : "";
 
     return {
       nama,
@@ -138,7 +139,7 @@ const dataToImport: SupirCreate[] = lines
       isActive: true,
     };
   })
-  .filter(x => x.nama && x.namaPT && x.username);
+  .filter((x) => x.nama && x.namaPT && x.username);
 
 
     if (dataToImport.length === 0) {
@@ -344,7 +345,7 @@ const handleEdit = (supir: Supir) => {
           </Dialog>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => { setEditingSupir(null); setFormData({ nama: '', namaPT: '', isActive: true }); }}>
+              <Button onClick={() => { setEditingSupir(null); setFormData({ nama: '', namaPT: '', username '', isActive: true }); }}>
                 <Plus className="mr-2 h-4 w-4" />
                 Tambah Supir
               </Button>

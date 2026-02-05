@@ -19,6 +19,7 @@ export interface Supir {
   username: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Truck {
