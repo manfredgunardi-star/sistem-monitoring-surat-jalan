@@ -202,7 +202,7 @@ export default function DashboardLayout({
       )}
 
       {/* Main Content - Full Width */}
-      <main className="flex-1 overflow-y-auto w-full">
+      <main className="flex-1 overflow-y-auto w-full bg-green-50">
         <div className="p-4 lg:p-6 max-w-6xl mx-auto w-full">
           {children}
         </div>
