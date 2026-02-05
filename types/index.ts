@@ -16,6 +16,7 @@ export interface Supir {
   id: string;
   nama: string;
   namaPT: string;
+  username: string;
   isActive: boolean;
   createdAt: string;
 }
