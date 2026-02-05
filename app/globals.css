@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  @apply box-border;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-foreground antialiased;
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 0 0% 3.9%;
