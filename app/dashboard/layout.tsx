@@ -133,7 +133,6 @@ export default function DashboardLayout({
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
               <Menu className="h-5 w-5" />
@@ -160,22 +159,17 @@ export default function DashboardLayout({
         </div>
       </header>
 
-      {/* Overlay for mobile sidebar */}
+      {/* Overlay for sidebar */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-20 top-14"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      {/* Body with sidebar + content */}
-      <div className="flex flex-1 w-full overflow-hidden">
-        {/* Sidebar - Mobile: fixed overlay, Desktop: relative */}
-        <aside
-          className={cn(
-            'w-64 bg-white border-r border-slate-200 overflow-y-auto flex-shrink-0 hidden lg:block'
-          )}
-        >
+      {/* Sidebar - Overlay only */}
+      {isSidebarOpen && (
+        <aside className="fixed left-0 top-14 w-64 h-[calc(100vh-3.5rem)] bg-white border-r border-slate-200 overflow-y-auto z-30">
           <div className="py-4 px-4">
             <nav className="space-y-1">
               {filteredMenuItems.map((item, index) => {
@@ -195,6 +189,7 @@ export default function DashboardLayout({
                     key={item.href}
                     href={item.href!}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-100 text-slate-700 transition-colors text-sm font-medium"
+                    onClick={() => setIsSidebarOpen(false)}
                   >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     <span className="truncate">{item.label}</span>
@@ -204,48 +199,14 @@ export default function DashboardLayout({
             </nav>
           </div>
         </aside>
+      )}
 
-        {/* Mobile Sidebar - Fixed Overlay */}
-        {isSidebarOpen && (
-          <aside className="fixed left-0 top-14 w-64 h-screen bg-white border-r border-slate-200 overflow-y-auto z-30 lg:hidden">
-            <div className="py-4 px-4">
-              <nav className="space-y-1">
-                {filteredMenuItems.map((item, index) => {
-                  if (item.isGroup) {
-                    return (
-                      <div key={index} className="pt-4 pb-2">
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-                          {item.label}
-                        </h3>
-                      </div>
-                    );
-                  }
-                  
-                  const Icon = item.icon!;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href!}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-slate-100 text-slate-700 transition-colors text-sm font-medium"
-                      onClick={() => setIsSidebarOpen(false)}
-                    >
-                      <Icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
-            </div>
-          </aside>
-        )}
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto w-full">
-          <div className="p-4 lg:p-6 w-full">
-            {children}
-          </div>
-        </main>
-      </div>
+      {/* Main Content - Full Width */}
+      <main className="flex-1 overflow-y-auto w-full">
+        <div className="p-4 lg:p-6 max-w-6xl mx-auto w-full">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }
